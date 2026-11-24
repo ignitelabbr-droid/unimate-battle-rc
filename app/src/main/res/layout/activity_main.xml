@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Foto de fundo da equipe UNIMATE TEAM + UNESC -->
+    <!-- Foto oficial UNIMATE TEAM + UNESC -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -11,33 +11,32 @@
         android:scaleType="centerCrop"
         android:src="@drawable/bg_team_photo" />
 
-    <!-- Véu escuro suave para manter os rostos/logos visíveis e os botões com alto contraste -->
+    <!-- Véu escuro refinado (mantém logos/rostos nítidos + alto contraste de instrumento) -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#660B1120" />
+        android:background="#58080B12" />
 
-    <!-- HUD + Cockpit translúcido sobre a foto -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="12dp">
 
-        <!-- TOP HUD BAR -->
+        <!-- BARRA SUPERIOR DE TELEMETRIA (Estilo Motorsport / Kino) -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_pill_surface"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="12dp">
+            android:paddingStart="14dp"
+            android:paddingEnd="10dp">
 
             <View
                 android:id="@+id/statusDot"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
                 android:background="@drawable/bg_dot_status" />
 
             <TextView
@@ -45,25 +44,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="UNIMATE • DESCONECTADO"
+                android:letterSpacing="0.06"
+                android:text="UNIMATE • OFFLINE"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvTelemetry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:background="#AA0E1116"
+                android:layout_marginStart="12dp"
+                android:background="#99080B12"
                 android:fontFamily="monospace"
-                android:paddingStart="10dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="4dp"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
                 android:text="TX: S"
-                android:textColor="@color/accent_cyan"
-                android:textSize="12sp"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <View
@@ -71,181 +71,297 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <Button
+            <!-- Botão Áudio Wind Of Change (com ícone vetorial limpo) -->
+            <LinearLayout
                 android:id="@+id/btnMusic"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="34dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="#CC2B2110"
-                android:text="🎸 WIND OF CHANGE"
-                android:textColor="@color/accent_amber"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:background="@drawable/bg_pill_surface"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="12dp">
 
-            <Button
-                android:id="@+id/btnConnect"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:backgroundTint="@color/accent_cyan"
-                android:text="CONECTAR HC-06"
-                android:textColor="#0E1116"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivMusic"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_music" />
 
-        <!-- MAIN 2-THUMB BATTLE COCKPIT -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="14dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <!-- LEFT THUMB: DRIVE -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <Button
-                    android:id="@+id/btnForward"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginBottom="12dp"
-                    android:layout_weight="1.2"
-                    android:background="@drawable/bg_btn_drive"
-                    android:text="▲\nFRENTE"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/btnBack"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="0.9"
-                    android:background="@drawable/bg_btn_drive"
-                    android:text="▼\nRÉ"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                <TextView
+                    android:id="@+id/tvMusicLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:letterSpacing="0.05"
+                    android:text="AUDIO"
+                    android:textColor="#F8FAFC"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- CENTER CONSOLE (compacto na parte de baixo para deixar os logos UNIMATE + UNESC livres!) -->
+            <!-- Botão Conectar Bluetooth (com ícone vetorial limpo) -->
+            <LinearLayout
+                android:id="@+id/btnConnect"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_pill_surface"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_bluetooth" />
+
+                <TextView
+                    android:id="@+id/tvConnectLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:letterSpacing="0.05"
+                    android:text="CONECTAR"
+                    android:textColor="#F8FAFC"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- COCKPIT PRINCIPAL: 3 ZONAS ORGANIZADAS -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <!-- ZONA ESQUERDA: PEDAIS DE TRAÇÃO (FRENTE / RÉ) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_weight="1.0"
+                android:layout_weight="0.95"
+                android:gravity="bottom"
+                android:orientation="vertical"
+                android:paddingTop="18dp">
+
+                <LinearLayout
+                    android:id="@+id/btnForward"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1.25"
+                    android:background="@drawable/bg_btn_drive"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:src="@drawable/ic_chevron_up" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.14"
+                        android:text="DRIVE"
+                        android:textColor="#CBD5E1"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnBack"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.85"
+                    android:background="@drawable/bg_btn_drive"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_chevron_down" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.14"
+                        android:text="REV"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ZONA CENTRAL: CLUSTER DE INSTRUMENTOS (VELOCÍMETRO REAL + MODOS + FREIO) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
+                android:layout_weight="1.15"
                 android:gravity="bottom|center_horizontal"
                 android:orientation="vertical">
 
+                <!-- Velocímetro Real Animado (Canvas Motorsport) -->
+                <com.alhysson.battlerc.SpeedometerView
+                    android:id="@+id/speedometer"
+                    android:layout_width="168dp"
+                    android:layout_height="168dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Barra de Modos de Condução (ECO / SPORT / RACE) + Freio -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_pill_surface"
-                    android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:id="@+id/tvAction"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:text="PARADO"
-                        android:textColor="@color/accent_cyan"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                    android:padding="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="44dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_height="36dp"
+                        android:layout_marginBottom="8dp"
                         android:orientation="horizontal">
 
-                        <Button
+                        <TextView
                             android:id="@+id/btnSpeed60"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_marginEnd="6dp"
                             android:layout_weight="1"
-                            android:backgroundTint="@color/bg_surface_elevated"
-                            android:text="60%"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
+                            android:background="@drawable/bg_pill_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:letterSpacing="0.08"
+                            android:text="ECO 60"
+                            android:textColor="#94A3B8"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
-                        <Button
+                        <TextView
                             android:id="@+id/btnSpeed85"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_marginEnd="6dp"
                             android:layout_weight="1"
-                            android:backgroundTint="@color/bg_surface_elevated"
-                            android:text="85%"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
+                            android:background="@drawable/bg_pill_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:letterSpacing="0.08"
+                            android:text="SPORT 85"
+                            android:textColor="#94A3B8"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
-                        <Button
+                        <TextView
                             android:id="@+id/btnSpeed100"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:backgroundTint="@color/accent_green"
-                            android:text="100%"
-                            android:textColor="#0E1116"
-                            android:textSize="12sp"
+                            android:background="@drawable/bg_pill_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:letterSpacing="0.08"
+                            android:text="RACE 100"
+                            android:textColor="#10B981"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <Button
+                    <TextView
                         android:id="@+id/btnBrake"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_btn_brake"
-                        android:text="⛔ FREIO (S)"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:letterSpacing="0.16"
+                        android:text="FREIO DE EMERGÊNCIA"
+                        android:textColor="#F8FAFC"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- RIGHT THUMB: PIVOT STEERING -->
+            <!-- ZONA DIREITA: PADDLES DE DIREÇÃO / GIRO PIVÔ -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1.15"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_weight="1.05"
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:paddingTop="48dp">
 
-                <Button
+                <LinearLayout
                     android:id="@+id/btnLeft"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_btn_steer"
-                    android:text="◀\nESQ"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <Button
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_chevron_left" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.14"
+                        android:text="LEFT"
+                        android:textColor="#CBD5E1"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/btnRight"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/bg_btn_steer"
-                    android:text="▶\nDIR"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_chevron_right" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.14"
+                        android:text="RIGHT"
+                        android:textColor="#CBD5E1"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

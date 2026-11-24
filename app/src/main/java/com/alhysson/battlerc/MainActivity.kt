@@ -12,7 +12,7 @@ import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,30 +27,33 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusDot: View
     private lateinit var tvStatus: TextView
     private lateinit var tvTelemetry: TextView
-    private lateinit var tvAction: TextView
-    private lateinit var btnConnect: Button
-    private lateinit var btnMusic: Button
-    private lateinit var btnSpeed60: Button
-    private lateinit var btnSpeed85: Button
-    private lateinit var btnSpeed100: Button
+    private lateinit var tvConnectLabel: TextView
+    private lateinit var tvMusicLabel: TextView
+    private lateinit var ivMusic: ImageView
+    private lateinit var speedometer: SpeedometerView
 
-    // Estado multi-toque (permite segurar Frente + Esquerda juntos -> envia 'G'!)
+    private lateinit var btnSpeed60: TextView
+    private lateinit var btnSpeed85: TextView
+    private lateinit var btnSpeed100: TextView
+
+    // Estado multi-toque (permite segurar Drive + Left/Right juntos -> envia G/I/H/J)
     private var holdingForward = false
     private var holdingBack = false
     private var holdingLeft = false
     private var holdingRight = false
     private var musicPlaying = false
+    private var currentSpeedLimitPct = 100
 
-    // Heartbeat de 60ms para manter o Watchdog de 200ms do Arduino sempre alimentado
+    // Heartbeat de 60ms para alimentar o Watchdog de 200ms do Arduino
     private val handler = Handler(Looper.getMainLooper())
     private val driveLoop = object : Runnable {
         override fun run() {
-            val (cmd, label) = computeMovementCommand()
+            val (cmd, gear, active) = computeMovementTelemetry()
             if (btManager.isConnected) {
                 btManager.send(cmd)
             }
             tvTelemetry.text = "TX: $cmd"
-            tvAction.text = label
+            speedometer.setTelemetry(active, currentSpeedLimitPct, gear)
             handler.postDelayed(this, 60L)
         }
     }
@@ -73,61 +76,63 @@ class MainActivity : AppCompatActivity() {
         statusDot = findViewById(R.id.statusDot)
         tvStatus = findViewById(R.id.tvStatus)
         tvTelemetry = findViewById(R.id.tvTelemetry)
-        tvAction = findViewById(R.id.tvAction)
-        btnConnect = findViewById(R.id.btnConnect)
-        btnMusic = findViewById(R.id.btnMusic)
+        tvConnectLabel = findViewById(R.id.tvConnectLabel)
+        tvMusicLabel = findViewById(R.id.tvMusicLabel)
+        ivMusic = findViewById(R.id.ivMusic)
+        speedometer = findViewById(R.id.speedometer)
+
         btnSpeed60 = findViewById(R.id.btnSpeed60)
         btnSpeed85 = findViewById(R.id.btnSpeed85)
         btnSpeed100 = findViewById(R.id.btnSpeed100)
 
-        btManager = BluetoothManager(this) { connected, _, message ->
+        btManager = BluetoothManager(this) { connected, deviceName, message ->
             runOnUiThread {
-                tvStatus.text = message
-                val dotColor = if (connected) Color.parseColor("#34D399") else Color.parseColor("#F43F5E")
+                tvStatus.text = if (connected) "${deviceName ?: "HC-06"} • ONLINE" else "UNIMATE • ${message.uppercase()}"
+                val dotColor = if (connected) Color.parseColor("#10B981") else Color.parseColor("#EF4444")
                 statusDot.backgroundTintList = ColorStateList.valueOf(dotColor)
-                btnConnect.text = if (connected) "DESCONECTAR" else "CONECTAR HC-06"
+                tvConnectLabel.text = if (connected) "DESCONECTAR" else "CONECTAR"
                 if (connected) {
-                    // Garante velocidade máxima ao conectar
-                    selectSpeedPreset('q', btnSpeed100)
+                    selectSpeedPreset('q', 100, btnSpeed100)
                 }
             }
         }
 
-        // Botões de Tração e Giro com suporte a Multi-Touch
-        bindHoldButton(findViewById(R.id.btnForward)) { holdingForward = it }
-        bindHoldButton(findViewById(R.id.btnBack)) { holdingBack = it }
-        bindHoldButton(findViewById(R.id.btnLeft)) { holdingLeft = it }
-        bindHoldButton(findViewById(R.id.btnRight)) { holdingRight = it }
+        // Controles de Tração e Direção (Multi-Touch)
+        bindHoldControl(findViewById(R.id.btnForward)) { holdingForward = it }
+        bindHoldControl(findViewById(R.id.btnBack)) { holdingBack = it }
+        bindHoldControl(findViewById(R.id.btnLeft)) { holdingLeft = it }
+        bindHoldControl(findViewById(R.id.btnRight)) { holdingRight = it }
 
         // Freio de emergência
-        findViewById<Button>(R.id.btnBrake).setOnClickListener {
+        findViewById<View>(R.id.btnBrake).setOnClickListener {
             holdingForward = false
             holdingBack = false
             holdingLeft = false
             holdingRight = false
             btManager.send('S')
+            speedometer.setTelemetry(false, currentSpeedLimitPct, "P")
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
 
-        // 3 Presets instantâneos de velocidade (estilo Kino)
-        btnSpeed60.setOnClickListener { selectSpeedPreset('4', btnSpeed60) }
-        btnSpeed85.setOnClickListener { selectSpeedPreset('8', btnSpeed85) }
-        btnSpeed100.setOnClickListener { selectSpeedPreset('q', btnSpeed100) }
+        // 3 Modos de Potência (ECO / SPORT / RACE)
+        btnSpeed60.setOnClickListener { selectSpeedPreset('4', 60, btnSpeed60) }
+        btnSpeed85.setOnClickListener { selectSpeedPreset('8', 85, btnSpeed85) }
+        btnSpeed100.setOnClickListener { selectSpeedPreset('q', 100, btnSpeed100) }
+        updateSpeedTabsUI(btnSpeed100)
 
-        // Botão dedicado Wind Of Change (W / w)
-        btnMusic.setOnClickListener {
+        // Toggle Wind Of Change (W / w)
+        findViewById<View>(R.id.btnMusic).setOnClickListener {
             musicPlaying = !musicPlaying
-            val cmd = if (musicPlaying) 'W' else 'w'
-            btManager.send(cmd)
-            btnMusic.text = if (musicPlaying) "🔊 PAUSAR MÚSICA" else "🎸 WIND OF CHANGE"
-            btnMusic.backgroundTintList = ColorStateList.valueOf(
-                Color.parseColor(if (musicPlaying) "#14532D" else "#2B2110")
-            )
+            btManager.send(if (musicPlaying) 'W' else 'w')
+            val tint = Color.parseColor(if (musicPlaying) "#F59E0B" else "#F8FAFC")
+            tvMusicLabel.text = if (musicPlaying) "WIND ON" else "AUDIO"
+            tvMusicLabel.setTextColor(tint)
+            ivMusic.imageTintList = ColorStateList.valueOf(tint)
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
 
-        // Conexão / Desconexão Bluetooth
-        btnConnect.setOnClickListener {
+        // Conexão Bluetooth
+        findViewById<View>(R.id.btnConnect).setOnClickListener {
             if (btManager.isConnected) {
                 btManager.disconnect()
             } else {
@@ -148,8 +153,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun bindHoldButton(button: Button, onHoldChanged: (Boolean) -> Unit) {
-        button.setOnTouchListener { view, event ->
+    private fun bindHoldControl(control: View, onHoldChanged: (Boolean) -> Unit) {
+        control.setOnTouchListener { view, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     view.isPressed = true
@@ -167,31 +172,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun computeMovementCommand(): Pair<Char, String> {
+    private fun computeMovementTelemetry(): Triple<Char, String, Boolean> {
         return when {
-            holdingForward && holdingLeft  -> 'G' to "FRENTE + ESQ"
-            holdingForward && holdingRight -> 'I' to "FRENTE + DIR"
-            holdingBack && holdingLeft     -> 'H' to "RÉ + ESQ"
-            holdingBack && holdingRight    -> 'J' to "RÉ + DIR"
-            holdingForward                 -> 'F' to "FRENTE"
-            holdingBack                    -> 'B' to "RÉ"
-            holdingLeft                    -> 'L' to "GIRO ESQUERDA"
-            holdingRight                   -> 'R' to "GIRO DIREITA"
-            else                           -> 'S' to "PARADO"
+            holdingForward && holdingLeft  -> Triple('G', "D-L", true)
+            holdingForward && holdingRight -> Triple('I', "D-R", true)
+            holdingBack && holdingLeft     -> Triple('H', "R-L", true)
+            holdingBack && holdingRight    -> Triple('J', "R-R", true)
+            holdingForward                 -> Triple('F', "D", true)
+            holdingBack                    -> Triple('B', "R", true)
+            holdingLeft                    -> Triple('L', "PIV-L", true)
+            holdingRight                   -> Triple('R', "PIV-R", true)
+            else                           -> Triple('S', "N", false)
         }
     }
 
-    private fun selectSpeedPreset(cmd: Char, activeBtn: Button) {
+    private fun selectSpeedPreset(cmd: Char, pct: Int, activeBtn: TextView) {
+        currentSpeedLimitPct = pct
         btManager.send(cmd)
+        updateSpeedTabsUI(activeBtn)
+        activeBtn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+    }
+
+    private fun updateSpeedTabsUI(activeBtn: TextView) {
         val all = listOf(btnSpeed60, btnSpeed85, btnSpeed100)
         for (b in all) {
             val selected = (b == activeBtn)
-            b.backgroundTintList = ColorStateList.valueOf(
-                Color.parseColor(if (selected) "#34D399" else "#222834")
+            b.setTextColor(
+                Color.parseColor(
+                    if (!selected) "#94A3B8"
+                    else if (b == btnSpeed100) "#EF4444"
+                    else if (b == btnSpeed85) "#F59E0B"
+                    else "#10B981"
+                )
             )
-            b.setTextColor(Color.parseColor(if (selected) "#0E1116" else "#94A3B8"))
+            b.alpha = if (selected) 1.0f else 0.65f
         }
-        activeBtn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
     private fun requestPermissionsAndConnect() {
